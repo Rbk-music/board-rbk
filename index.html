@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AR Video Demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.136.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-three.prod.js"></script>
+    <style>
+      body { margin: 0; overflow: hidden; }
+      #ar-container { width: 100vw; height: 100vh; }
+    </style>
+  </head>
+  <body>
+    <div id="ar-container"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+          container: document.querySelector("#ar-container"),
+          imageTargetSrc: "./assets/targets.mind"
+        });
+
+        const { renderer, scene, camera } = mindarThree;
+
+        const anchor = mindarThree.addAnchor(0);
+        const video = document.createElement("video");
+        video.src = "https://reza-board.reza-bakhshi-srbk.workers.dev/download/BAACAgQAAxkBAANdZ__ETjRUCqi5-jUaibyAODgkl9gAAscJAALvVclQxqbjT4DLrkI2BA/videos/file_63.mp4";
+        video.crossOrigin = "anonymous";
+        video.loop = true;
+        video.muted = true;
+        video.playsInline = true;
+
+        const texture = new THREE.VideoTexture(video);
+        const geometry = new THREE.PlaneGeometry(1, 0.5625);
+        const material = new THREE.MeshBasicMaterial({ map: texture });
+        const plane = new THREE.Mesh(geometry, material);
+
+        anchor.group.add(plane);
+
+        anchor.onTargetFound = () => {
+          video.play();
+        };
+        anchor.onTargetLost = () => {
+          video.pause();
+        };
+
+        mindarThree.start().then(() => {
+          renderer.setAnimationLoop(() => {
+            renderer.render(scene, camera);
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
